@@ -40,7 +40,8 @@ def get_html1(event):
 if __name__=="__main__":
     app = wx.App()
     win = wx.Frame(None,title = "关键词挖掘工具|开发者：李亚涛 wx:841483350（注意：请填入必须包含的关键词，比如:你想挖掘包含seo的关键词，就在第二个输入框填入seo）".decode('utf8'),size=(1200,1000))
-
+    icon = wx.Icon('favicon.ico', wx.BITMAP_TYPE_ICO)   #绑定ico
+    win.SetIcon(icon)
     win.Show()
 
     wx.StaticText(win,label="请输入一个关键词*：",pos=(105,10),size=(120,30))

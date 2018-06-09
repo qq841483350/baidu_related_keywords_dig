@@ -26,7 +26,7 @@ def get_html2(word):
 
 
 def get_html1(event):
-    global text1,text
+    global text1,text  #把text1与text设置为全局变量
     contents2.Clear()  #清空内容
     text1=contents0.GetValue()
     text1=''.join(text1.split()).encode('utf8')

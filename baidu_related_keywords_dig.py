@@ -1,41 +1,53 @@
 #coding:utf8
 #百度相关搜索关键词挖掘GUI工具  开发者：李亚涛 wx:841483350
-import requests,re,wx,threading
+import requests,re,wx,threading,sys
+from lxml import etree
+from bs4 import BeautifulSoup
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 headers={"Host":"www.baidu.com","User-Agent":"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0"}
-
+def get_html(url):
+    while True:
+        try:
+            html=requests.get(url).content
+            return html
+        except:
+            pass
 list=[]
-def get_html2(word):
-    keyword=word
-    list.append(keyword)
-    url='http://www.baidu.com/s?wd=%s'%word
-    html=requests.get(url).content
-    html=re.findall('<div id="rs">([\s\S]*?)<div id="page" >',html)[0]
-    words=re.findall('<a href="[\s\S]*?">([\s\S]*?)</a>',html)
-    for word in words:
-        if word not in list:
-            if '%s'%text1 in str(word):   #text1为 挖掘出的关键词必需要包含的关键词。
-                print word.decode('utf8')
-                contents2.AppendText(word+'\n')   #添加contents里的内容
-                y=threading.Thread(target=get_html2,args=(word,))
-                y.start()
-                # get_html2(word)
+def get_word(word):
+    x=word
+    list.append(x)
+    url='http://www.baidu.com/s?wd=%s'%x
+    html=get_html(url)
+    # print html
+    soup=BeautifulSoup(html,'html.parser')
+    data=soup.find_all("div",id="rs")
+    if data:
+        words=data[0].find_all('a')
+        for word in words:
+            word=word.text
+            if word not in list:
+                if '%s'%y in str(word):
+                    print word
+                    contents2.AppendText(word+'\n')
+                    x=threading.Thread(target=get_word,args=(word,))
+                    x.start()
+                else:
+                    continue
             else:
-                pass
-        else:
-            continue
+                continue
 
 
-def get_html1(event):
-    global text1,text  #把text1与text设置为全局变量
+def get_fist_word(event):
+    global y
+    del list[:]  #清空列表
     contents2.Clear()  #清空内容
-    text1=contents0.GetValue()
-    text1=''.join(text1.split()).encode('utf8')
-    text=contents1.GetValue()  #获取contents1里的内容
-    text=''.join(text.split()).encode('utf8')    #去除中间的空格与回车
-    print text
-    keyword=text
-    list.append(keyword)
-    get_html2(keyword)
+    word=contents0.GetValue()
+    word=str(word).strip()
+    y=contents1.GetValue()
+    y=str(y).strip()
+    get_word(word)
 
 if __name__=="__main__":
     app = wx.App()
@@ -53,6 +65,8 @@ if __name__=="__main__":
     contents2 = wx.TextCtrl(win, pos = (100,40),size = (800,600), style = wx.TE_MULTILINE | wx.TE_RICH)
 
     loadButton = wx.Button(win, label = '开始挖掘关键词'.decode('utf8'),pos = (780,5),size = (100,30))
-    loadButton.Bind(wx.EVT_BUTTON,get_html1)  #这个按钮绑定 get_source 这个函数
+    loadButton.Bind(wx.EVT_BUTTON,get_fist_word)  #这个按钮绑定 get_source 这个函
     app.MainLoop()
-    get_html1(text)
+    # word="长沙二手房"
+    # y=word
+    # get_word(word)
